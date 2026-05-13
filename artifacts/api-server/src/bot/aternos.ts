@@ -4,8 +4,8 @@ import { logger } from "../lib/logger.js";
 const USERNAME = process.env["ATERNOS_USERNAME"];
 const PASSWORD = process.env["ATERNOS_PASSWORD"];
 
-// How long to keep the browser open waiting for the queue confirm button (10 min)
-const QUEUE_WATCH_MS = 10 * 60 * 1000;
+// How long to keep the browser open waiting for the queue confirm button (20 min)
+const QUEUE_WATCH_MS = 20 * 60 * 1000;
 const QUEUE_POLL_INTERVAL_MS = 4000;
 
 type Page = Awaited<ReturnType<typeof import("puppeteer").default.prototype.newPage>>;
