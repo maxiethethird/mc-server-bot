@@ -1,45 +1,59 @@
-# [Project name]
+# Minecraft Server Starter Bot
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A Discord bot that starts, stops, and checks the status of an Aternos Minecraft server using slash commands.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/api-server run dev` — run the API server + Discord bot (port 8080)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
 - API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
+- Discord: discord.js v14
+- Aternos automation: Puppeteer (headless Chromium)
 - Build: esbuild (CJS bundle)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/api-server/src/bot/index.ts` — Discord client setup, command handler
+- `artifacts/api-server/src/bot/commands.ts` — Slash command definitions
+- `artifacts/api-server/src/bot/aternos.ts` — Puppeteer automation for Aternos login/start/stop/status
+- `artifacts/api-server/src/index.ts` — Entry point, starts Express + bot
+
+## Discord Commands
+
+- `/start` — Starts the Aternos Minecraft server
+- `/stop` — Stops the Aternos Minecraft server
+- `/status` — Shows server status, IP address, and player count
+
+## Required Secrets
+
+| Secret | Description |
+|---|---|
+| `DISCORD_BOT_TOKEN` | Your Discord bot token |
+| `ATERNOS_USERNAME` | Your Aternos account username |
+| `ATERNOS_PASSWORD` | Your Aternos account password |
+
+## Optional Env Vars
+
+- `DISCORD_GUILD_ID` — Set this to your Discord server ID for instant slash command registration (instead of waiting up to 1 hour for global propagation). Great for testing.
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
-
-## Product
-
-_Describe the high-level user-facing capabilities of this app once they exist._
-
-## User preferences
-
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- The Discord bot runs inside the same process as the Express server so it stays alive on a single deployment.
+- Puppeteer (headless Chromium) is used to automate Aternos since they have no official API. The browser is launched fresh per command and closed after to minimize memory usage.
+- Slash commands are registered globally on bot startup. Set `DISCORD_GUILD_ID` for instant guild-scoped registration during development.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Global slash commands take up to 1 hour to appear in Discord after first startup. Use `DISCORD_GUILD_ID` for immediate testing.
+- Puppeteer automation depends on Aternos' page structure — if they redesign their UI, selectors may need updating.
+- Chromium is cached at `~/.cache/puppeteer` after the first `pnpm install` run.
+- Each `/start`, `/stop`, or `/status` command launches a full browser session (~20–30 seconds). Discord's deferred reply handles the wait gracefully.
 
-## Pointers
+## User preferences
 
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- Keep the Discord bot active in production (important).
