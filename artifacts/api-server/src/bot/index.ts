@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 import { logger } from "../lib/logger.js";
 import { commands } from "./commands.js";
-import { startServer, stopServer, getStatus } from "./aternos.js";
+import { startServer, getStatus } from "./aternos.js";
 
 const TOKEN = process.env["DISCORD_BOT_TOKEN"];
 
@@ -49,7 +49,7 @@ export function startBot() {
 
     const { commandName } = interaction;
 
-    if (!["start", "stop", "status"].includes(commandName)) return;
+    if (!["start", "status"].includes(commandName)) return;
 
     // Defer so we have time for the puppeteer automation (can take ~30s)
     await interaction.deferReply();
@@ -61,8 +61,6 @@ export function startBot() {
 
       if (commandName === "start") {
         result = await startServer();
-      } else if (commandName === "stop") {
-        result = await stopServer();
       } else {
         result = await getStatus();
       }
